@@ -55,7 +55,14 @@ function getPageFiles()
 {
 	$directory = "";
 	$pages = glob($directory . "*.php");
-	//print each file name
+
+    //--- jjr search others dirs...
+    $directory = "../";
+    $pages2 = glob($directory . "*.php");
+    $pages = array_merge($pages,$pages2);
+
+
+    //print each file name
 	foreach ($pages as $page){
 		$row[$page] = $page;
 	}

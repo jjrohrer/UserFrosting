@@ -70,7 +70,18 @@ if (!securePage($_SERVER['PHP_SELF'])){
   <ul class="nav navbar-nav side-nav">
 	
 <?php
+
+// jjr - operations home
 //Links for permission level 2 (default admin)
+if ($loggedInUser->checkPermission(array(1))){
+    echo "
+   <li class='navitem-dashboard-admin'><a href='../index.php'><i class='fa fa-road'></i> Operations Home</a></li>";
+
+}
+
+
+
+      //Links for permission level 2 (default admin)
 if ($loggedInUser->checkPermission(array(2))){
 	echo "
     <li class='navitem-dashboard-admin'><a href='dashboard_admin.php'><i class='fa fa-dashboard'></i> Admin Dashboard</a></li>
