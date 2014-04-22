@@ -51,7 +51,7 @@ setReferralPage($_SERVER['PHP_SELF']);
     <meta name="author" content="">
     <link rel="shortcut icon" href="css/favicon.ico">
 
-    <title>UserFrosting - Reset Password</title>
+    <title><?=$websiteName?>  - Reset Password</title>
 
 	<link rel="icon" type="image/x-icon" href="css/favicon.ico" />
 	
@@ -78,7 +78,7 @@ setReferralPage($_SERVER['PHP_SELF']);
       <div class="header">
         <ul class="nav nav-pills navbar pull-right">
         </ul>
-        <h3 class="text-muted">UserFrosting</h3>
+        <h3 class="text-muted"><?=$websiteName?> </h3>
       </div>
       <div class="jumbotron">
         <h1>Reset Password</h1>
@@ -107,7 +107,7 @@ setReferralPage($_SERVER['PHP_SELF']);
 		</form>
       </div>	
       <div class="footer">
-        <p>&copy; Your Website, 2014</p>
+        <p>&copy; <?=$websiteName?>, 2014</p>
       </div>
 
     </div> <!-- /container -->

@@ -49,7 +49,7 @@ setReferralPage($_SERVER['PHP_SELF']);
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>UserFrosting - Dashboard</title>
+    <title><?=$websiteName?> - Dashboard</title>
 
     <?php require_once("includes.php");  ?>
     

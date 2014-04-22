@@ -48,7 +48,7 @@ setReferralPage($_SERVER['PHP_SELF']);
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>UserFrosting Admin - Users</title>
+    <title><?=$websiteName?> Admin - Users</title>
 
     <?php require_once("includes.php");  ?>
  

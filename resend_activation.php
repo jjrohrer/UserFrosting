@@ -58,7 +58,7 @@ if(isUserLoggedIn()) {
     <meta name="author" content="">
     <link rel="shortcut icon" href="css/favicon.ico">
 
-    <title>UserFrosting - Resend Activation Email</title>
+    <title><?=$websiteName?> - Resend Activation Email</title>
 
 	<link rel="icon" type="image/x-icon" href="css/favicon.ico" />
 	
@@ -85,7 +85,7 @@ if(isUserLoggedIn()) {
       <div class="header">
         <ul class="nav nav-pills navbar pull-right">
         </ul>
-        <h3 class="text-muted">UserFrosting</h3>
+        <h3 class="text-muted"><?=$websiteName?></h3>
       </div>
       <div class="jumbotron">
         <h1>Account Activation</h1>
@@ -114,7 +114,7 @@ if(isUserLoggedIn()) {
 		</form>
       </div>	
       <div class="footer">
-        <p>&copy; Your Website, 2014</p>
+        <p>&copy; <?=$websiteName?>, 2014</p>
       </div>
 
     </div> <!-- /container -->

@@ -56,7 +56,7 @@ if (!is_numeric($selected_user_id) || !userIdExists($selected_user_id)){
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>UserFrosting Admin - User Details</title>
+    <title><?=$websiteName?> Admin - User Details</title>
 
 	<?php require_once("includes.php");  ?>
 
