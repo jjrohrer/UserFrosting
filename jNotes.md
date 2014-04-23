@@ -13,7 +13,13 @@ Most Useful Refactors & updates
 Most Useful Instructions
 * How to always secure a page and give default actions, like a redirect to login
 
-Secuity Updates
+Security Updates
 * obfuscate emails in db
 * obfuscate usernames in db
 * Improve session security
+* Be able to secure a whole directory vi .htaccess, and to verify .htaccess is there
+* Do a ghetto tripwire on a whole directory structure w/ certain dirs excluded - with notification
+
+Audit Updates
+* Track who changed what
+* Track access
