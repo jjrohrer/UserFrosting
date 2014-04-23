@@ -43,14 +43,14 @@ try {
 	exit();
   }
   
-  $pages = getPageFiles(); //Retrieve list of pages in root usercake folder
+  $dirPages = getPageFiles(); //Retrieve list of pages in root usercake folder
   $dbpages = fetchAllPages(); //Retrieve list of pages in pages table
   $creations = array();
   $deletions = array();
   $originals = array();
   
   //Check if any pages exist which are not in DB
-  foreach ($pages as $page){
+  foreach ($dirPages as $page){
 	  if(!isset($dbpages[$page])){
 		  $creations[] = $page;	
 	  }
@@ -64,16 +64,38 @@ try {
   // Find pages in table which no longer exist
   if (count($dbpages) > 0){
 	  //Check if DB contains pages that don't exist
-	  foreach ($dbpages as $page){
-		  if(!isset($pages[$page['page']])){
-			$deletions[] = $page['id'];	
+	  foreach ($dbpages as $dbPageName=>$asrDbPage){
+          if (!in_array($dbPageName,$dirPages)) {
+		  //if(!isset($pages[$page['page']])){
+			$deletions[] = $asrDbPage['id'];
+              print "<br> $dbPageName wasn't there - so deleting";
+
 		  } else {
-			$originals[] = $page['id'];
+			$originals[] = $asrDbPage['id'];
 		  }
 	  }
   }
-  
-  $allPages = fetchAllPages();
+//    print "<br>".__FILE__.__LINE__."<br>dirPages: <pre>";
+//    print_r( $dirPages );
+//    print "</pre>";
+//
+//    print "<br>".__FILE__.__LINE__."<br>dbpages: <pre>";
+//    print_r( $dbpages );
+//    print "</pre>";
+//
+//    print "<br>".__FILE__.__LINE__."<br>new: <pre>";
+//    print_r( $creations );
+//    print "</pre>";
+//
+//    print "<br>".__FILE__.__LINE__."<br>to delte: <pre>";
+//    print_r( $deletions );
+//    print "</pre>";
+//
+//    print "<br>".__FILE__.__LINE__."<br>db: <pre>";
+//    print_r( $originals );
+//    print "</pre>";
+
+    $allPages = fetchAllPages();
   // Merge the newly created pages, plus the pages slated for deletion, load their permissions, and set a flag (C)reated, (U)pdated, (D)eleted
   foreach ($allPages as $page){
 	$id = $page['id'];
@@ -91,8 +113,9 @@ try {
 	else
 	  $allPages[$name]['permissions'] = array();
   }
-  
-  //Delete pages from DB
+
+
+    //Delete pages from DB
   if (count($deletions) > 0) {
 	  deletePages($deletions);
   }

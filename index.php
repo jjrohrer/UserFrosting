@@ -58,7 +58,7 @@ if(isUserLoggedIn()) {
     <meta name="author" content="">
     <link rel="shortcut icon" href="css/favicon.ico">
 
-    <title>Welcome to School Chase!</title>
+    <title>Welcome to <?=$websiteName?>!</title>
 
     <link rel="icon" type="image/x-icon" href="css/favicon.ico" />
 
@@ -85,10 +85,10 @@ if(isUserLoggedIn()) {
       <div class="header">
         <ul class="nav nav-pills navbar pull-right">
         </ul>
-        <h3 class="text-muted">School Chase</h3>
+        <h3 class="text-muted"><?=$websiteName?></h3>
       </div>
       <div class="jumbotron">
-        <h1>Welcome to School Chase!</h1>
+        <h1>Welcome to <?=$websiteName?>!</h1>
         <p class="lead">Website tools for after-school enrichment events – bringing sanity to a hectic job.</p>
 		<div class="row">
 			<div class="col-sm-12">
@@ -99,7 +99,7 @@ if(isUserLoggedIn()) {
         </div>
       </div>	
       <div class="footer">
-        <p>&copy; School Chase, 2014</p>
+        <p>&copy; <?=$websiteName?>, 2014</p>
       </div>
 
     </div> <!-- /container -->

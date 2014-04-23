@@ -48,7 +48,7 @@ setReferralPage($_SERVER['PHP_SELF']);
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>School Chase Admin - Site Pages</title>
+    <title><?=$websiteName?> Admin - Site Pages</title>
 
 	<?php require_once("includes.php");  ?>
 	 

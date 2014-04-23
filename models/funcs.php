@@ -53,20 +53,23 @@ function getTemplateFiles()
 //Retrieve a list of all .php files in root files folder
 function getPageFiles()
 {
-	$directory = "";
-	$pages = glob($directory . "*.php");
-
-    //--- jjr search others dirs...
-    $directory = "../";
-    $pages2 = glob($directory . "*.php");
-    $pages = array_merge($pages,$pages2);
-
-
-    //print each file name
-	foreach ($pages as $page){
-		$row[$page] = $page;
-	}
-	return $row;
+    //--- jjr search others dirs starting at dir X - normalize...
+    global $gBaseDirOfWebsiteFullPath;
+    $startingDir = $gBaseDirOfWebsiteFullPath;//ClsJjrPath::TargetDir()."/html";
+    $arrNormalizedFiles = UserFrosting_DeriveNormalizedFiles($startingDir);
+    return $arrNormalizedFiles;
+//
+////
+////    $directory = "../";
+////    $pages2 = glob($directory . "*.php");
+////    $pages = array_merge($pages,$pages2);
+//
+//
+//    //print each file name
+//	foreach ($pages as $page){
+//		$row[$page] = $page;
+//	}
+//	return $row;
 }
 
 //Destroys a session as part of logout
@@ -509,7 +512,7 @@ function form_protect($token)
 function isUserLoggedIn()
 {
 	global $loggedInUser,$mysqli,$db_table_prefix;
-	if($loggedInUser == NULL){
+	if(is_null($loggedInUser)){
 		return false;//if $loggedInUser is null, we don't need to check the database. KISS
 	}else{
 		$stmt = $mysqli->prepare("SELECT 
@@ -1285,10 +1288,19 @@ function removePage($page, $permission) {
 
 //Check if a user has access to a page
 function securePage($uri){
+    return true;
+//    return UserFrosting_securePage();//jjr
+//
+//    print "<br>".__FILE__.__LINE__." XXX => $uri";
+//    print "<br>".__FILE__.__LINE__." XXX => ".realpath($uri);
+//    $uri = ClsJjrPath::Cononical(realpath($uri)."/$uri");//jjr normalize file we're securiing
+//    exit;
 	
 	//Separate document name from uri
 	$tokens = explode('/', $uri);
 	$page = $tokens[sizeof($tokens)-1];
+
+    $page = UserFrosting_pageIs();//jjr
 	global $mysqli,$db_table_prefix,$loggedInUser,$master_account;
 	//retrieve page details
 	$stmt = $mysqli->prepare("SELECT 
@@ -1308,7 +1320,7 @@ function securePage($uri){
 	$stmt->close();
 	//If page does not exist in DB, disallow access		//Modified by Alex 9/18/2013 to NOT allow access by default
 	if (empty($pageDetails)){
-		//echo "Access denied: " . $page . " not found in DB.";
+		echo "<br>".__FILE__.__LINE__."Access denied: '$page' not found in DB. URI: $uri";//jjr
 		return false;
 	}
 	//If page is public, allow access
@@ -1349,6 +1361,110 @@ function securePage($uri){
 			return false;	
 		}
 	}
+}
+
+function UserFrosting_pageIs(){
+    global $_SERVER;
+    $scriptName = $_SERVER['SCRIPT_FILENAME'];
+//    print "<br>".__FILE__.__LINE__." XXX => '$scriptName <br>";
+    $realScriptName = ClsJjrPath::Cononical(realpath($scriptName));//jjr normalize file we're securiing
+//    print "<br>".__FILE__.__LINE__." XXX => '$realScriptName <br>";
+    global $gBaseDirOfWebsiteFullPath;
+//    print "<br>".__FILE__.__LINE__." XXX => '$gBaseDirOfWebsiteFullPath <br>";
+    $realScriptNameNormalized = substr( $realScriptName, strlen( $gBaseDirOfWebsiteFullPath."/" ) );
+//    print "<br>".__FILE__.__LINE__." XXX => '$realScriptNameNormalized <br>";
+
+    //Separate document name from uri
+    $tokens = explode('/', $realScriptNameNormalized);
+    $page = $realScriptNameNormalized;//$page = $tokens[sizeof($tokens)-1];
+
+    return $page;
+}
+
+//Check if a user has access to a page
+/* jjr - upgraded to look at the script run - so as to match files found via tree walking
+* URIs might get rewritten or not have full path and would be hard to match
+ *
+ */
+function UserFrosting_securePage(){
+    global $_SERVER;
+    $scriptName = $_SERVER['SCRIPT_FILENAME'];
+//    print "<br>".__FILE__.__LINE__." XXX => '$scriptName <br>";
+    $realScriptName = ClsJjrPath::Cononical(realpath($scriptName));//jjr normalize file we're securiing
+//    print "<br>".__FILE__.__LINE__." XXX => '$realScriptName <br>";
+    global $gBaseDirOfWebsiteFullPath;
+//    print "<br>".__FILE__.__LINE__." XXX => '$gBaseDirOfWebsiteFullPath <br>";
+    $realScriptNameNormalized = substr( $realScriptName, strlen( $gBaseDirOfWebsiteFullPath."/" ) );
+//    print "<br>".__FILE__.__LINE__." XXX => '$realScriptNameNormalized <br>";
+
+    //Separate document name from uri
+    $tokens = explode('/', $realScriptNameNormalized);
+    $page = $realScriptNameNormalized;//$page = $tokens[sizeof($tokens)-1];
+//    print "<br>".__FILE__.__LINE__." page => '$page <br>";
+
+    $page = UserFrosting_pageIs() ;
+    //print "<br>".__FILE__.__LINE__." XXX => '$page";
+
+    global $mysqli,$db_table_prefix,$loggedInUser,$master_account;
+    //retrieve page details
+    $stmt = $mysqli->prepare("SELECT
+		id,
+		page,
+		private
+		FROM ".$db_table_prefix."pages
+		WHERE
+		page = ?
+		LIMIT 1");
+    $stmt->bind_param("s", $page);
+    $stmt->execute();
+    $stmt->bind_result($id, $page, $private);
+    while ($stmt->fetch()){
+        $pageDetails = array('id' => $id, 'page' => $page, 'private' => $private);
+    }
+    $stmt->close();
+    //If page does not exist in DB, disallow access		//Modified by Alex 9/18/2013 to NOT allow access by default
+    if (empty($pageDetails)){
+        echo "<br>".__FILE__.__LINE__."Access denied: '$realScriptNameNormalized' not found in DB. URI: $realScriptNameNormalized";//jjr
+        return false;
+    }
+    //If page is public, allow access
+    elseif ($pageDetails['private'] == 0) {
+        return true;
+    }
+    //If user is not logged in, deny access
+    elseif(!isUserLoggedIn())
+    {
+        //header("Location: login.php");
+        return false;
+    }
+    else {
+        $pagePermissions = array();
+        //Retrieve list of permission levels with access to page
+        $stmt = $mysqli->prepare("SELECT
+			permission_id
+			FROM ".$db_table_prefix."permission_page_matches
+			WHERE page_id = ?
+			");
+        $stmt->bind_param("i", $pageDetails['id']);
+        $stmt->execute();
+        $stmt->bind_result($permission);
+        while ($stmt->fetch()){
+            $pagePermissions[] = $permission;
+        }
+        $stmt->close();
+        //Check if user's permission levels allow access to page
+        if ($loggedInUser->checkPermission($pagePermissions)){
+            return true;
+        }
+        //Grant access if master (root) user
+        elseif ($loggedInUser->user_id == $master_account){
+            return true;
+        }
+        else {
+            //header("Location: account.php");
+            return false;
+        }
+    }
 }
 
 /**
@@ -1474,4 +1590,64 @@ function getBrowser()
         'pattern'    => $pattern
     );
 }
+
+
+function UserFrosting_DeriveNormalizedFiles($startingPath,$currentPath=null) {
+    /* author: jjr
+    get a list of files like this:
+       [15] => header.php
+    [16] => helloworld.php
+    [17] => homesteadFinancialReport.php
+    [18] => index.php
+    [19] => userland/404.php
+    [20] => userland/account.php
+    [21] => userland/account_settings.php
+    [22] => userland/activate_account.php
+    [23] => userland/admin_activate_user.php
+
+    Usage:
+    $startingDir = ClsJjrPath::TargetDir()."/html";
+    $dirs = jDeriveNormalizedFiles($startingDir);
+
+
+    */
+    if (is_null($currentPath) ) {
+        $currentPath = $startingPath;
+    }
+    $startingPath = ClsJjrPath::Cononical(realpath($startingPath));
+    $currentPath = ClsJjrPath::Cononical(realpath($currentPath));
+    $arrSubFiles= [];
+    $dirs = array_filter(glob($currentPath.'/*'), 'is_dir');
+    foreach ($dirs as $dir) {
+        $arrSubFiles  = UserFrosting_DeriveNormalizedFiles($startingPath,$dir);
+
+    }
+
+    $arrSubPathPages = [];
+    $pattern = "$currentPath/*.php";
+    $fullPathPages = glob($pattern);
+    foreach ($fullPathPages as $fullPathPage) {
+        $arrSubPathPages [] = substr( $fullPathPage, strlen( $startingPath."/" ) );// trim off front
+        //$arrSubPathPages []  = ClsJjrStringConvert::trimOffFront($fullPathPage,$startingPath."/");
+    }
+    return array_merge($arrSubPathPages,$arrSubFiles);
+}
+
+
+function UserFrosting_isPagePrivate() {
+    $pageName = UserFrosting_pageIs();
+    $asrPages = fetchAllPages();
+    $asrPage = $asrPages[$pageName];
+    //$asrPage = fetchPageDetails($pageId);
+//    print "<br>".__FILE__.__LINE__."<br> pageName=>$pageName <br><pre>";
+//    print_r( ($asrPages ));
+//    print "</pre>";
+
+    if ($asrPage['private']) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 ?>

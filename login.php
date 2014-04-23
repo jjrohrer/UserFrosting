@@ -31,9 +31,16 @@ THE SOFTWARE.
 
 require_once("models/config.php");
 
+$strIsLoggedIn = isUserLoggedIn() ? "You are logged in." : "You are not logged in - just an anonymous user.";
+$myPage = UserFrosting_pageIs();
+$strIsAllowed = UserFrosting_securePage() ? "Oh - you can visit '$myPage'" : " You are not allowed to visit '$myPage'" ;
+
+    print "<br>".__FILE__.__LINE__."Can you be here? $strIsAllowed";
+//exit;
 if (!securePage($_SERVER['PHP_SELF'])){
   // Forward to 404 page
-  addAlert("danger", "Whoops, looks like you don't have permission to view that page.");
+  $strIsLoggedIn = isUserLoggedIn() ? "You are logged in." : "You are not logged in - just an anonymous user.";
+  addAlert("danger", "Whoops, looks like you don't have permission to view that page. No login for you. $strIsLoggedIn");
   header("Location: 404.php");
   exit();
 }
@@ -59,7 +66,7 @@ if(isUserLoggedIn()) {
     <meta name="author" content="">
     <link rel="shortcut icon" href="css/favicon.ico">
 
-    <title>Welcome to School Chase!</title>
+    <title>Welcome to <?=$websiteName?>!</title>
 
 	<link rel="icon" type="image/x-icon" href="css/favicon.ico" />
 	
@@ -86,10 +93,10 @@ if(isUserLoggedIn()) {
       <div class="header">
         <ul class="nav nav-pills navbar pull-right">
         </ul>
-        <h3 class="text-muted">School Chase</h3>
+        <h3 class="text-muted"><?=$websiteName?></h3>
       </div>
       <div class="jumbotron">
-        <h1>Welcome to School Chase!</h1>
+        <h1>Welcome to <?=$websiteName?>!</h1>
         <p class="lead">Website tools for after-school enrichment events – bringing sanity to a hectic job.</p>
 		<small>Please sign in here:</small>
 		<form class='form-horizontal' role='form' name='login' action='process_login.php' method='post'>
@@ -118,7 +125,7 @@ if(isUserLoggedIn()) {
 		</form>
       </div>	
       <div class="footer">
-        <p>&copy; School Chase, 2014</p>
+        <p>&copy; <?=$websiteName?>, 2014</p>
       </div>
 
     </div> <!-- /container -->
